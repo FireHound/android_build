@@ -684,6 +684,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.Print("| |_  | | '__/ _ \ |_| |/ _ \| | | | '_ \ / _` |");
     script.Print("|  _| | | | |  __/  _  | (_) | |_| | | | | (_| |");
     script.Print("|_|   |_|_|  \___|_| |_|\___/ \__,_|_| |_|\__,_|");
+    script.Print("						");
     script.Print("************************************************");
     script.Print("Burning Your Device With Fire");
     script.Print("Now Start Hounding Your Ass Up");
@@ -693,8 +694,8 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.Print("******************************************");
     script.Print("***** FIRE BURNS AND PHOENIX HOUNDS *****");
     script.Print("******************************************");
-    script.Print("    Compiled For: %s "%(device)); 
-    script.Print("   Compiled On: %s"%(build));
+    script.Print("	Compiled For: %s "%(device)); 
+    script.Print("	Compiled On: %s"%(build));
     script.Print("******************************************"); 
 
   # Place a copy of file_contexts.bin into the OTA package which will be used
