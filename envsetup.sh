@@ -796,7 +796,7 @@ function eat()
 {
     if [ "$OUT" ] ; then
         MODVERSION=$(get_build_var FH_VERSION)
-        ZIPFILE=FireHound-nougat_unofficial-$MODVERSION.zip
+        ZIPFILE=FireHound-unofficial-$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
