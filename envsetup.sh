@@ -4,18 +4,12 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - lunch:     lunch <product_name>-<build_variant>
 - tapas:     tapas [<App1> <App2> ...] [arm|x86|mips|armv5|arm64|x86_64|mips64] [eng|userdebug|user]
 - croot:     Changes directory to the top of the tree.
-- cout:      Changes directory to out.
 - m:         Makes from the top of the tree.
 - mm:        Builds all of the modules in the current directory, but not their dependencies.
 - mmm:       Builds all of the modules in the supplied directories, but not their dependencies.
              To limit the modules being built use the syntax: mmm dir/:target1,target2.
 - mma:       Builds all of the modules in the current directory, and their dependencies.
 - mmma:      Builds all of the modules in the supplied directories, and their dependencies.
-- mmap:      Builds all of the modules in the current directory, and its dependencies, then pushes the package to the device.
-- mmp:       Builds all of the modules in the current directory and pushes them to the device.
-- mmmp:      Builds all of the modules in the supplied directories and pushes them to the device.
-- mms:       Short circuit builder. Quickly re-build the kernel, rootfs, boot and system images
-             without deep dependencies. Requires the full build to have run before.
 - provision: Flash device with all required partitions. Options will be passed on to fastboot.
 - cgrep:     Greps on all local C/C++ files.
 - ggrep:     Greps on all local Gradle files.
@@ -26,26 +20,15 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - sepgrep:   Greps on all local sepolicy files.
 - sgrep:     Greps on all local source files.
 - godir:     Go to the directory containing a file.
-- cmremote:  Add git remote for CM Gerrit Review
-- cmgerrit:  A Git wrapper that fetches/pushes patch from/to CM Gerrit Review
-- aospremote: Add git remote for matching AOSP repository
-- cafremote: Add git remote for matching CodeAurora repository.
-- cmrebase:  Rebase a Gerrit change and push it again
-- mka:       Builds using SCHED_BATCH on all processors
-- mkap:      Builds the module(s) using mka and pushes them to the device.
-- cmka:      Cleans and builds using mka.
-- repolastsync: Prints date and time of last repo sync.
-- reposync:  Parallel repo sync using ionice and SCHED_BATCH
-- repopick:  Utility to fetch changes from Gerrit.
-- installboot: Installs a boot.img to the connected device.
-- installrecovery: Installs a recovery.img to the connected device.
-- repodiff:  Diff 2 different branches or tags within the same repo
+EOF
 
+    __print_fh_functions_help
+
+cat <<EOF
 Environment options:
 - SANITIZE_HOST: Set to 'true' to use ASAN for all host modules. Note that
                  ASAN_OPTIONS=detect_leaks=0 will be set by default until the
                  build is leak-check clean.
-
 Look at the source to view more functions. The complete list is:
 EOF
     T=$(gettop)
@@ -153,7 +136,6 @@ function check_product()
        FH_BUILD=
     fi
     export FH_BUILD
-
         TARGET_PRODUCT=$1 \
         TARGET_BUILD_VARIANT= \
         TARGET_BUILD_TYPE= \
@@ -161,9 +143,7 @@ function check_product()
         get_build_var TARGET_DEVICE > /dev/null
     # hide successful answers, but allow the errors to show
 }
-
 VARIANT_CHOICES=(user userdebug eng)
-
 # check to see if the supplied variant is valid
 function check_variant()
 {
@@ -176,7 +156,6 @@ function check_variant()
     done
     return 1
 }
-
 function setpaths()
 {
     T=$(gettop)
@@ -184,7 +163,6 @@ function setpaths()
         echo "Couldn't locate the top of the tree.  Try setting TOP."
         return
     fi
-
     ##################################################################
     #                                                                #
     #              Read me before you modify this code               #
@@ -195,10 +173,8 @@ function setpaths()
     #   and still have working paths.                                #
     #                                                                #
     ##################################################################
-
     # Note: on windows/cygwin, ANDROID_BUILD_PATHS will contain spaces
     # due to "C:\Program Files" being in the path.
-
     # out with the old
     if [ -n "$ANDROID_BUILD_PATHS" ] ; then
         export PATH=${PATH/$ANDROID_BUILD_PATHS/}
@@ -208,16 +184,13 @@ function setpaths()
         # strip leading ':', if any
         export PATH=${PATH/:%/}
     fi
-
     # and in with the new
     prebuiltdir=$(getprebuilt)
     gccprebuiltdir=$(get_abs_build_var ANDROID_GCC_PREBUILTS)
-
     # defined in core/config.mk
     targetgccversion=$(get_build_var TARGET_GCC_VERSION)
     targetgccversion2=$(get_build_var 2ND_TARGET_GCC_VERSION)
     export TARGET_GCC_VERSION=$targetgccversion
-
     # The gcc toolchain does not exists for windows/cygwin. In this case, do not reference it.
     export ANDROID_TOOLCHAIN=
     export ANDROID_TOOLCHAIN_2ND_ARCH=
@@ -242,14 +215,11 @@ function setpaths()
     if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
         export ANDROID_TOOLCHAIN=$gccprebuiltdir/$toolchaindir
     fi
-
     if [ -d "$gccprebuiltdir/$toolchaindir2" ]; then
         export ANDROID_TOOLCHAIN_2ND_ARCH=$gccprebuiltdir/$toolchaindir2
     fi
-
     export ANDROID_DEV_SCRIPTS=$T/development/scripts:$T/prebuilts/devtools/tools:$T/external/selinux/prebuilts/bin
     export ANDROID_BUILD_PATHS=$(get_build_var ANDROID_BUILD_PATHS):$ANDROID_TOOLCHAIN:$ANDROID_TOOLCHAIN_2ND_ARCH:$ANDROID_DEV_SCRIPTS:
-
     # If prebuilts/android-emulator/<system>/ exists, prepend it to our PATH
     # to ensure that the corresponding 'emulator' binaries are used.
     case $(uname -s) in
@@ -267,10 +237,8 @@ function setpaths()
         ANDROID_BUILD_PATHS=$ANDROID_BUILD_PATHS$ANDROID_EMULATOR_PREBUILTS:
         export ANDROID_EMULATOR_PREBUILTS
     fi
-
     export PATH=$ANDROID_BUILD_PATHS$PATH
     export PYTHONPATH=$T/development/python-packages:$PYTHONPATH
-
     unset ANDROID_JAVA_TOOLCHAIN
     unset ANDROID_PRE_BUILD_PATHS
     if [ -n "$JAVA_HOME" ]; then
@@ -278,23 +246,18 @@ function setpaths()
         export ANDROID_PRE_BUILD_PATHS=$ANDROID_JAVA_TOOLCHAIN:
         export PATH=$ANDROID_PRE_BUILD_PATHS$PATH
     fi
-
     unset ANDROID_PRODUCT_OUT
     export ANDROID_PRODUCT_OUT=$(get_abs_build_var PRODUCT_OUT)
     export OUT=$ANDROID_PRODUCT_OUT
-
     unset ANDROID_HOST_OUT
     export ANDROID_HOST_OUT=$(get_abs_build_var HOST_OUT)
-
     if [ -n "$ANDROID_CCACHE_DIR" ]; then
         export CCACHE_DIR=$ANDROID_CCACHE_DIR
     fi
-
     # needed for building linux on MacOS
     # TODO: fix the path
     #export HOST_EXTRACFLAGS="-I "$T/system/kernel_headers/host_include
 }
-
 function printconfig()
 {
     T=$(gettop)
@@ -304,24 +267,20 @@ function printconfig()
     fi
     get_build_var report_config
 }
-
 function set_stuff_for_environment()
 {
     settitle
     set_java_home
     setpaths
     set_sequence_number
-
     # With this environment variable new GCC can apply colors to warnings/errors
     export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
     export ASAN_OPTIONS=detect_leaks=0
 }
-
 function set_sequence_number()
 {
     export BUILD_ENV_SEQUENCE_NUMBER=10
 }
-
 function settitle()
 {
     if [ "$STAY_OFF_MY_LAWN" = "" ]; then
@@ -339,45 +298,37 @@ function settitle()
         if [ ! -z "$ANDROID_PROMPT_PREFIX" ]; then
             PROMPT_COMMAND="$(echo $PROMPT_COMMAND | sed -e 's/$ANDROID_PROMPT_PREFIX //g')"
         fi
-
         if [ -z "$apps" ]; then
             ANDROID_PROMPT_PREFIX="[${arch}-${product}-${variant}]"
         else
             ANDROID_PROMPT_PREFIX="[$arch $apps $variant]"
         fi
         export ANDROID_PROMPT_PREFIX
-
         # Inject build data into hardstatus
         export PROMPT_COMMAND="$(echo $PROMPT_COMMAND | sed -e 's/\\033]0;\(.*\)\\007/\\033]0;$ANDROID_PROMPT_PREFIX \1\\007/g')"
     fi
 }
-
 function check_bash_version()
 {
     # Keep us from trying to run in something that isn't bash.
     if [ -z "${BASH_VERSION}" ]; then
         return 1
     fi
-
     # Keep us from trying to run in bash that's too old.
     if [ "${BASH_VERSINFO[0]}" -lt 4 ] ; then
         return 2
     fi
-
     return 0
 }
-
 function choosetype()
 {
     echo "Build type choices are:"
     echo "     1. release"
     echo "     2. debug"
     echo
-
     local DEFAULT_NUM DEFAULT_VALUE
     DEFAULT_NUM=1
     DEFAULT_VALUE=release
-
     export TARGET_BUILD_TYPE=
     local ANSWER
     while [ -z $TARGET_BUILD_TYPE ]
@@ -415,12 +366,10 @@ function choosetype()
             break
         fi
     done
-
     build_build_var_cache
     set_stuff_for_environment
     destroy_build_var_cache
 }
-
 #
 # This function isn't really right:  It chooses a TARGET_PRODUCT
 # based on the list of boards.  Usually, that gets you something
@@ -434,7 +383,6 @@ function chooseproduct()
     else
         default_value=aosp_arm
     fi
-
     export TARGET_BUILD_APPS=
     export TARGET_PRODUCT=
     local ANSWER
@@ -447,7 +395,6 @@ function chooseproduct()
             echo $1
             ANSWER=$1
         fi
-
         if [ -z "$ANSWER" ] ; then
             export TARGET_PRODUCT=$default_value
         else
@@ -462,12 +409,10 @@ function chooseproduct()
             break
         fi
     done
-
     build_build_var_cache
     set_stuff_for_environment
     destroy_build_var_cache
 }
-
 function choosevariant()
 {
     echo "Variant choices are:"
@@ -562,9 +507,6 @@ function print_lunch_menu()
     local uname=$(uname)
     echo
     echo "You're building on" $uname
-    if [ "$(uname)" = "Darwin" ] ; then
-       echo "  (ohai, koush!)"
-    fi
     echo
     if [ "z${FH_DEVICES_ONLY}" != "z" ]; then
        echo "Breakfast menu... pick a combo:"
@@ -1915,7 +1857,6 @@ function makerecipe() {
   cd ..
 
   repo forall -c '
-
   if [ "$REPO_REMOTE" = "github" ]
   then
     pwd
@@ -1947,18 +1888,14 @@ function cmgerrit() {
                 cat <<EOF
 Usage:
     $FUNCNAME COMMAND [OPTIONS] [CHANGE-ID[/PATCH-SET]][{@|^|~|:}ARG] [-- ARGS]
-
 Commands:
     fetch   Just fetch the change as FETCH_HEAD
     help    Show this help, or for a specific command
     pull    Pull a change into current branch
     push    Push HEAD or a local branch to Gerrit for a specific branch
-
 Any other Git commands that support refname would work as:
     git fetch URL CHANGE && git COMMAND OPTIONS FETCH_HEAD{@|^|~|:}ARG -- ARGS
-
 See '$FUNCNAME help COMMAND' for more information on a specific command.
-
 Example:
     $FUNCNAME checkout -b topic 1234/5
 works as:
@@ -1979,11 +1916,9 @@ EOF
                 help) $FUNCNAME help ;;
                 fetch|pull) cat <<EOF
 usage: $FUNCNAME $1 [OPTIONS] CHANGE-ID[/PATCH-SET]
-
 works as:
     git $1 OPTIONS http://DOMAIN/p/PROJECT \\
       refs/changes/HASH/CHANGE-ID/{PATCH-SET|1}
-
 Example:
     $FUNCNAME $1 1234
 will $1 patch-set 1 of change 1234
@@ -1991,11 +1926,9 @@ EOF
                     ;;
                 push) cat <<EOF
 usage: $FUNCNAME push [OPTIONS] [LOCAL_BRANCH:]REMOTE_BRANCH
-
 works as:
     git push OPTIONS ssh://USER@DOMAIN:29418/PROJECT \\
       {LOCAL_BRANCH|HEAD}:refs/for/REMOTE_BRANCH
-
 Example:
     $FUNCNAME push fix6789:gingerbread
 will push local branch 'fix6789' to Gerrit for branch 'gingerbread'.
@@ -2006,7 +1939,6 @@ EOF
                     $FUNCNAME __cmg_err_not_supported $1 && return
                     cat <<EOF
 usage: $FUNCNAME $1 [OPTIONS] CHANGE-ID[/PATCH-SET][{@|^|~|:}ARG] [-- ARGS]
-
 works as:
     git fetch http://DOMAIN/p/PROJECT \\
       refs/changes/HASH/CHANGE-ID/{PATCH-SET|1} \\
@@ -2204,7 +2136,6 @@ function cmrebase() {
     repo abandon tmprebase .
     cd $pwd
 }
-
 function mka() {
     local T=$(gettop)
     if [ "$T" ]; then
@@ -2216,12 +2147,10 @@ function mka() {
                 mk_timer schedtool -B -n 1 -e ionice -n 1 make -C $T -j$(cat /proc/cpuinfo | grep "^processor" | wc -l) "$@"
                 ;;
         esac
-
     else
         echo "Couldn't locate the top of the tree.  Try setting TOP."
     fi
 }
-
 function cmka() {
     if [ ! -z "$1" ]; then
         for i in "$@"; do
@@ -2241,7 +2170,6 @@ function cmka() {
         mka
     fi
 }
-
 function mms() {
     local T=$(gettop)
     if [ -z "$T" ]
@@ -2249,7 +2177,6 @@ function mms() {
         echo "Couldn't locate the top of the tree.  Try setting TOP."
         return 1
     fi
-
     case `uname -s` in
         Darwin)
             local NUM_CPUS=$(sysctl hw.ncpu|cut -d" " -f2)
@@ -2264,15 +2191,12 @@ function mms() {
             ;;
     esac
 }
-
-
 function repolastsync() {
     RLSPATH="$ANDROID_BUILD_TOP/.repo/.repo_fetchtimes.json"
     RLSLOCAL=$(date -d "$(stat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
     RLSUTC=$(date -d "$(stat -c %z $RLSPATH)" -u +"%e %b %Y, %T %Z")
     echo "Last repo sync: $RLSLOCAL / $RLSUTC"
 }
-
 function reposync() {
     case `uname -s` in
         Darwin)
@@ -2283,7 +2207,6 @@ function reposync() {
             ;;
     esac
 }
-
 function repodiff() {
     if [ -z "$*" ]; then
         echo "Usage: repodiff <ref-from> [[ref-to] [--numstat]]"
@@ -2292,7 +2215,6 @@ function repodiff() {
     diffopts=$* repo forall -c \
       'echo "$REPO_PATH ($REPO_REMOTE)"; git diff ${diffopts} 2>/dev/null ;'
 }
-
 # Return success if adb is up and not in recovery
 function _adb_connected {
     {
@@ -2302,16 +2224,13 @@ function _adb_connected {
             return 0
         fi
     } 2>/dev/null
-
     return 1
 };
-
 # Credit for color strip sed: http://goo.gl/BoIcm
 function dopush()
 {
     local func=$1
     shift
-
     adb start-server # Prevent unexpected starting server message from adb get-state in the next line
     if ! _adb_connected; then
         echo "No device is online. Waiting for one..."
@@ -2321,7 +2240,6 @@ function dopush()
         done
         echo "Device Found."
     fi
-
     if (adb shell getprop ro.fh.device | grep -q "$FH_BUILD") || [ "$FORCE_PUSH" = "true" ];
     then
     # retrieve IP and PORT info if we're using a TCP connection
@@ -2338,28 +2256,24 @@ function dopush()
     adb wait-for-device &> /dev/null
     sleep 0.3
     adb remount &> /dev/null
-
     mkdir -p $OUT
     ($func $*|tee $OUT/.log;return ${PIPESTATUS[0]})
     ret=$?;
     if [ $ret -ne 0 ]; then
         rm -f $OUT/.log;return $ret
     fi
-
     # Install: <file>
     if [ `uname` = "Linux" ]; then
         LOC="$(cat $OUT/.log | sed -r 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' | grep '^Install: ' | cut -d ':' -f 2)"
     else
         LOC="$(cat $OUT/.log | sed -E "s/"$'\E'"\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" | grep '^Install: ' | cut -d ':' -f 2)"
     fi
-
     # Copy: <file>
     if [ `uname` = "Linux" ]; then
         LOC="$LOC $(cat $OUT/.log | sed -r 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' | grep '^Copy: ' | cut -d ':' -f 2)"
     else
         LOC="$LOC $(cat $OUT/.log | sed -E "s/"$'\E'"\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" | grep '^Copy: ' | cut -d ':' -f 2)"
     fi
-
     # If any files are going to /data, push an octal file permissions reader to device
     if [ -n "$(echo $LOC | egrep '(^|\s)/data')" ]; then
         CHKPERM="/data/local/tmp/chkfileperm.sh"
@@ -2377,7 +2291,6 @@ EOF
         adb shell chmod 755 $CHKPERM
         rm -f $OUT/.chkfileperm.sh
     fi
-
     stop_n_start=false
     for FILE in $(echo $LOC | tr " " "\n"); do
         # Make sure file is in $OUT/system or $OUT/data
@@ -2388,7 +2301,6 @@ EOF
             ;;
             *) continue ;;
         esac
-
         case $TARGET in
             /data/*)
                 # fs_config only sets permissions and se labels for files pushed to /system
@@ -2436,18 +2348,15 @@ EOF
         echo "The connected device does not appear to be $FH_BUILD, run away!"
     fi
 }
-
 alias mmp='dopush mm'
 alias mmmp='dopush mmm'
 alias mmap='dopush mma'
 alias mkap='dopush mka'
 alias cmkap='dopush cmka'
-
 function repopick() {
     T=$(gettop)
     $T/build/tools/repopick.py $@
 }
-
 function fixup_common_out_dir() {
     common_out_dir=$(get_build_var OUT_DIR)/target/common
     target_device=$(get_build_var TARGET_DEVICE)
@@ -2465,7 +2374,6 @@ function fixup_common_out_dir() {
         mkdir -p ${common_out_dir}
     fi
 }
-
 # Force JAVA_HOME to point to java 1.7/1.8 if it isn't already set.
 function set_java_home() {
     # Clear the existing JAVA_HOME value if we set it ourselves, so that
@@ -2477,7 +2385,6 @@ function set_java_home() {
     if [ -n "$ANDROID_SET_JAVA_HOME" ]; then
       export JAVA_HOME=""
     fi
-
     if [ ! "$JAVA_HOME" ]; then
       if [ -n "$LEGACY_USE_JAVA7" ]; then
         echo Warning: Support for JDK 7 will be dropped. Switch to JDK 8.
@@ -2486,7 +2393,7 @@ function set_java_home() {
                 export JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
                 ;;
             *)
-                export JAVA_HOME=$(dirname $(dirname $(dirname $(readlink -f $(which java)))))
+                export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
                 ;;
         esac
       else
@@ -2495,11 +2402,11 @@ function set_java_home() {
                 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
                 ;;
             *)
-                export JAVA_HOME=$(dirname $(dirname $(dirname $(readlink -f $(which java)))))
+                export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
                 ;;
         esac
-      fi
 
+      fi
       # Keep track of the fact that we set JAVA_HOME ourselves, so that
       # we can change it on the next envsetup.sh, if required.
       export ANDROID_SET_JAVA_HOME=true
@@ -2518,12 +2425,10 @@ function pez {
     fi
     return $retval
 }
-
 function get_make_command()
 {
   echo command make
 }
-
 function mk_timer()
 {
     local start_time=$(date +"%s")
@@ -2561,7 +2466,6 @@ function mk_timer()
     echo
     return $ret
 }
-
 function provision()
 {
     if [ ! "$ANDROID_PRODUCT_OUT" ]; then
@@ -2572,7 +2476,6 @@ function provision()
         echo "There is no provisioning script for the device." >&2
         return 1
     fi
-
     # Check if user really wants to do this.
     if [ "$1" = "--no-confirmation" ]; then
         shift 1
@@ -2590,12 +2493,10 @@ function provision()
     fi
     "$ANDROID_PRODUCT_OUT/provision-device" "$@"
 }
-
 function make()
 {
     mk_timer $(get_make_command) "$@"
 }
-
 function __detect_shell() {
     case `ps -o command -p $$` in
         *bash*)
@@ -2611,12 +2512,9 @@ function __detect_shell() {
     esac
     return
 }
-
-
 if ! __detect_shell > /dev/null; then
     echo "WARNING: Only bash and zsh are supported, use of other shell may lead to erroneous results"
 fi
-
 # Execute the contents of any vendorsetup.sh files we can find.
 for f in `test -d device && find -L device -maxdepth 4 -name 'vendorsetup.sh' 2> /dev/null | sort` \
          `test -d vendor && find -L vendor -maxdepth 4 -name 'vendorsetup.sh' 2> /dev/null | sort` \
@@ -2626,7 +2524,6 @@ do
     . $f
 done
 unset f
-
 # Add completions
 check_bash_version && {
     dirs="sdk/bash_completion vendor/fh/bash_completion"
@@ -2639,5 +2536,4 @@ check_bash_version && {
     fi
     done
 }
-
 export ANDROID_BUILD_TOP=$(gettop)
