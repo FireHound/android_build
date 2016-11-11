@@ -278,7 +278,7 @@ def LoadInfoDict(input_file, input_dir=None):
   system_root_image = d.get("system_root_image", None) == "true"
   if d.get("no_recovery", None) != "true":
     recovery_fstab_path = "RECOVERY/RAMDISK/etc/recovery.fstab"
-    d["fstab"] = LoadRecoveryFSTab(read_helper, d["fstab_version"],
+    d["fstab"] = LoadRecoveryFSTab(read_helper, d["fstab_version"], d["device_type"],
         recovery_fstab_path, system_root_image)
   elif d.get("recovery_as_boot", None) == "true":
     recovery_fstab_path = "BOOT/RAMDISK/etc/recovery.fstab"
@@ -1387,7 +1387,7 @@ class Difference(object):
           err.append(e)
       th = threading.Thread(target=run)
       th.start()
-      th.join(timeout=300)   # 5 mins
+      th.join(timeout=600)   # 10 mins
       if th.is_alive():
         print("WARNING: diff command timed out")
         p.terminate()
