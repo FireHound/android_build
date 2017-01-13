@@ -690,7 +690,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.ValidateSignatures("data")
     script.Unmount("/data")
     script.AppendExtra("endif;")
-    
+
     script.Print("************************************************");
     script.Print(" _____ _          _   _                       _ ");
     script.Print("|  ___(_)_ __ ___| | | | ___  _   _ _ __   __| |");
@@ -707,9 +707,9 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.Print("******************************************");
     script.Print("***** FIRE BURNS AND PHOENIX HOUNDS *****");
     script.Print("******************************************");
-    script.Print("	Compiled For: %s "%(device)); 
+    script.Print("	Compiled For: %s "%(device));
     script.Print("	Compiled On: %s"%(build));
-    script.Print("******************************************"); 
+    script.Print("******************************************");
 
   # Place a copy of file_contexts.bin into the OTA package which will be used
   # by the recovery program.

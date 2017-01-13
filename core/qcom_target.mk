@@ -1,7 +1,7 @@
 # Target-specific configuration
 
 # Bring in Qualcomm helper macros
-include vendor/cm/build/core/qcom_utils.mk
+include $(BUILD_SYSTEM)/qcom_utils.mk
 
 # Populate the qcom hardware variants in the project pathmap.
 define ril-set-path-variant
@@ -25,10 +25,6 @@ $(call project-set-path,qcom-$(2),$(strip $(path)))
 endef
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-    B_FAMILY := msm8226 msm8610 msm8974
-    B64_FAMILY := msm8992 msm8994
-    BR_FAMILY := msm8909 msm8916
-    UM_FAMILY := msm8937 msm8953
 
     qcom_flags := -DQCOM_HARDWARE
     qcom_flags += -DQCOM_BSP
@@ -67,22 +63,24 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
     2ND_CLANG_TARGET_GLOBAL_CFLAGS += $(qcom_flags)
     2ND_CLANG_TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
 
-    ifeq ($(call is-board-platform-in-list, $(B_FAMILY)),true)
-        QCOM_HARDWARE_VARIANT := msm8974
-    else
-    ifeq ($(call is-board-platform-in-list, $(B64_FAMILY)),true)
-        QCOM_HARDWARE_VARIANT := msm8994
-    else
-    ifeq ($(call is-board-platform-in-list, $(BR_FAMILY)),true)
-        QCOM_HARDWARE_VARIANT := msm8916
-    else
-    ifeq ($(call is-board-platform-in-list, $(UM_FAMILY)),true)
-        QCOM_HARDWARE_VARIANT := msm8937
-    else
-        QCOM_HARDWARE_VARIANT := $(TARGET_BOARD_PLATFORM)
-    endif
-    endif
-    endif
+    ifeq ($(QCOM_HARDWARE_VARIANT),)
+        ifneq ($(filter msm8610 msm8226 msm8974,$(TARGET_BOARD_PLATFORM)),)
+            QCOM_HARDWARE_VARIANT := msm8974
+        else
+        ifneq ($(filter msm8909 msm8916,$(TARGET_BOARD_PLATFORM)),)
+            QCOM_HARDWARE_VARIANT := msm8916
+        else
+        ifneq ($(filter msm8953 msm8937,$(TARGET_BOARD_PLATFORM)),)
+            QCOM_HARDWARE_VARIANT := msm8937
+        else
+        ifneq ($(filter msm8992 msm8994,$(TARGET_BOARD_PLATFORM)),)
+            QCOM_HARDWARE_VARIANT := msm8994
+        else
+            QCOM_HARDWARE_VARIANT := $(TARGET_BOARD_PLATFORM)
+        endif
+        endif
+        endif
+        endif
     endif
 
 $(call project-set-path,qcom-audio,hardware/qcom/audio-caf/$(QCOM_HARDWARE_VARIANT))
