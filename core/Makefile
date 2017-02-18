@@ -4,6 +4,11 @@
 # intermedites-dir-for
 LOCAL_PATH := $(BUILD_SYSTEM)
 
+# Build system colors
+ifneq ($(BUILD_WITH_COLORS),0)
+  CL_RED="\033[31m"
+endif
+
 # Pick a reasonable string to use to identify files.
 ifneq "" "$(filter eng.%,$(BUILD_NUMBER))"
   # BUILD_NUMBER has a timestamp in it, which means that
@@ -232,7 +237,7 @@ endif
 	$(hide) TARGET_BUILD_TYPE="$(TARGET_BUILD_VARIANT)" \
 			TARGET_BUILD_FLAVOR="$(TARGET_BUILD_FLAVOR)" \
 			TARGET_DEVICE="$(TARGET_VENDOR_DEVICE_NAME)" \
-			CM_DEVICE="$(TARGET_DEVICE)" \
+			FH_DEVICE="$(TARGET_DEVICE)" \
 			PRODUCT_NAME="$(TARGET_VENDOR_PRODUCT_NAME)" \
 			PRODUCT_BRAND="$(PRODUCT_BRAND)" \
 			PRODUCT_DEFAULT_LOCALE="$(call get-default-product-locale,$(PRODUCT_LOCALES))" \
@@ -1317,15 +1322,6 @@ endef
 $(BUILT_SYSTEMIMAGE): $(FULL_SYSTEMIMAGE_DEPS) $(INSTALLED_FILES_FILE)
 	$(call build-systemimage-target,$@)
 
-ifndef I_WANT_A_QUAIL_STAR
-ifneq ($(WITHOUT_CHECK_API),true)
-$(BUILT_SYSTEMIMAGE): checkapi
-ifneq ($(TARGET_DISABLE_CMSDK),true)
-$(BUILT_SYSTEMIMAGE): checkapi-cm
-endif
-endif
-endif
-
 INSTALLED_SYSTEMIMAGE := $(PRODUCT_OUT)/system.img
 SYSTEMIMAGE_SOURCE_DIR := $(TARGET_OUT)
 
@@ -2227,13 +2223,26 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE)
 	   $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
 
-CM_TARGET_PACKAGE := $(PRODUCT_OUT)/lineage-$(LINEAGE_VERSION).zip
+FH_TARGET_PACKAGE := $(PRODUCT_OUT)/$(FH_VERSION).zip
 
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(CM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(CM_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(CM_TARGET_PACKAGE).md5sum
+        @echo -e ${CL_RED}""${CL_RED}
+	@echo -e ${CL_RED}"+++++++++++++++++++++++++++++++++++++++++++++++++++++++"${CL_RED}
+	@echo -e ${CL_RED}""${CL_RED}
+	@echo -e ${CL_RED}" ████  ▄█ █▄▄▄▄ ▄███▄    ▄  █ ████▄   ▄      ▄   ██▄"${CL_RED}
+	@echo -e ${CL_RED}"█▀   ▀ ██ █  ▄▀ █▀   ▀  █   █ █   █    █      █  █  █"${CL_RED}
+	@echo -e ${CL_RED}"█▀▀    ██ █▀▀▌  ██▄▄    ██▀▀█ █   █ █   █ ██   █ █   █"${CL_RED}
+	@echo -e ${CL_RED}"█      ▐█ █  █  █▄   ▄▀ █   █ ▀████ █   █ █ █  █ █  █"${CL_RED}
+	@echo -e ${CL_RED}" █      ▐   █   ▀███▀      █        █▄ ▄█ █  █ █ ███▀"${CL_RED}
+	@echo -e ${CL_RED}"  ▀        ▀              ▀          ▀▀▀  █   ██"${CL_RED}
+	@echo -e ${CL_RED}""${CL_RED}
+	@echo -e ${CL_RED}"+++++++++++++++++++++++++++++++++++++++++++++++++++++++"${CL_RED}
+	@echo -e ${CL_RED}""${CL_RED}
+fh: otapackage
 	@echo "Package Complete: $(CM_TARGET_PACKAGE)" >&2
 
 endif    # build_ota_package
