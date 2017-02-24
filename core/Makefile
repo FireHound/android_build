@@ -2228,9 +2228,9 @@ FH_TARGET_PACKAGE := $(PRODUCT_OUT)/$(FH_VERSION).zip
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
-	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(CM_TARGET_PACKAGE)
-	$(hide) $(MD5SUM) $(CM_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(CM_TARGET_PACKAGE).md5sum
-        @echo -e ${CL_RED}""${CL_RED}
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(FH_TARGET_PACKAGE)
+	$(hide) $(MD5SUM) $(FH_TARGET_PACKAGE) > $(FH_TARGET_PACKAGE).md5sum
+	@echo -e ${CL_RED}""${CL_RED}
 	@echo -e ${CL_RED}"+++++++++++++++++++++++++++++++++++++++++++++++++++++++"${CL_RED}
 	@echo -e ${CL_RED}""${CL_RED}
 	@echo -e ${CL_RED}" ████  ▄█ █▄▄▄▄ ▄███▄    ▄  █ ████▄   ▄      ▄   ██▄"${CL_RED}
@@ -2243,7 +2243,7 @@ bacon: otapackage
 	@echo -e ${CL_RED}"+++++++++++++++++++++++++++++++++++++++++++++++++++++++"${CL_RED}
 	@echo -e ${CL_RED}""${CL_RED}
 fh: otapackage
-	@echo "Package Complete: $(CM_TARGET_PACKAGE)" >&2
+	@echo "Package Complete: $(FH_TARGET_PACKAGE)"
 
 endif    # build_ota_package
 # -----------------------------------------------------------------
