@@ -655,7 +655,8 @@ function lunch()
     export TARGET_PRODUCT=$product
     export TARGET_BUILD_VARIANT=$variant
     export TARGET_BUILD_TYPE=release
-
+    export FH_VERSION=$(get_build_var FH_VERSION)
+    export FH_RELEASE=$(get_build_var FH_RELEASE)
     echo
 
     fixup_common_out_dir
@@ -1721,3 +1722,6 @@ check_bash_version && {
 export ANDROID_BUILD_TOP=$(gettop)
 
 . $ANDROID_BUILD_TOP/vendor/fh/build/envsetup.sh
+
+# Include OTA functions
+source $(gettop)/vendor/ota/manifest.bash
